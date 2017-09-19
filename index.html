@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Georgia Tech 2016 Crime Map</title>
+	<!-- import D3 and Leaflet -->
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"> </script>
+</head>
+<!-- this is the css for Leaflet -->
+<style type="text/css">
+	#mapid {
+		height: 750px;
+		width: 100%;
+	}
+</style>
+<!-- test for google maps -->
+<style>
+	 #map {
+		height: 400px;
+		width: 100%;
+	 }
+</style>
+<body>
+
+	<div id="mapid"></div>
+
+</body>
+
+	<script type="text/javascript">
+		//set coordinates to GT's student center
+		var atl = new L.LatLng(33.77487566, -84.39795059);
+		//create map object with GT's student center at the center of map
+		var mymap = L.map('mapid').setView(atl, 16);
+		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+				maxZoom: 18,
+				minZoom: 15,
+				id: 'mapbox.light',
+				accessToken: 'pk.eyJ1IjoiamFnb2R3aW4iLCJhIjoiY2lnOGQxaDhiMDZzMXZkbHYzZmN4ZzdsYiJ9.Uwh_L37P-qUoeC-MBSDteA'
+		}).addTo(mymap);
+
+		//svg layer on top of the map object to write data points
+		var svgLayer = L.svg();
+		svgLayer.addTo(mymap)
+
+		var svg = d3.select("#mapid").select("svg");
+		var g = svg.select("g");
+		g.attr("class", "leaflet-zoom-hide");
+
+		//load in the data from crime_log.csv
+		d3.csv('/crime_log.csv', function(error, nodes) {
+			if(error)
+					console.log(error)
+
+			//creating the circle dots from the data in crime_log.csv
+			g.selectAll('circle')
+					.data(nodes)
+					.enter().append('circle')
+							.style("opacity", 0.3)
+							.style("fill", 'red')
+							.attr('r', 6)
+
+			//setting the location of the circle dots from the data in crime_log.csv
+			nodes.forEach(function(d){
+					d.LatLng = [+d.LocationLatitude, +d.LocationLongitude];
+			})
+
+			mymap.on('zoomend', updateNodes);
+
+			updateNodes();
+		})
+
+		function updateNodes(){
+		    g.selectAll('circle')
+		        .attr('cx', function(d){return mymap.latLngToLayerPoint(d.LatLng).x})
+		        .attr('cy', function(d){return mymap.latLngToLayerPoint(d.LatLng).y})
+		}
+
+	</script>
+
+</html>
