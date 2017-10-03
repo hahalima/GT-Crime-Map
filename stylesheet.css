@@ -1,0 +1,35 @@
+#container {
+ width:100%;
+ /*margin:10px 10px 10px 10px;*/
+ background:#fff;
+ position:relative;
+}
+#left_col {
+   float:left;
+   width:30%;
+   height:800px;
+   color:#000;
+   background:#fff;
+   /*position:absolute;*/
+   overflow: scroll;
+}
+#right_col {
+   float:right;
+   width:70%;
+   height:800px;
+   color:red;
+   background:#fff;
+   /*position:relative;*/
+}
+#mapid {
+   height: 800px;
+   width: 100%;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+li {
+  border:1px solid #000;
+}

@@ -5,26 +5,22 @@
 	<!-- import D3 and Leaflet -->
 	<script src="https://d3js.org/d3.v4.min.js"></script>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+	<link rel="stylesheet" type="text/css" href="stylesheet.css" />
 	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"> </script>
 </head>
-<!-- this is the css for Leaflet -->
-<style type="text/css">
-	#mapid {
-		height: 750px;
-		width: 100%;
-	}
-</style>
-<!-- test for google maps -->
-<style>
-	 #map {
-		height: 400px;
-		width: 100%;
-	 }
-</style>
+
 <body>
-
-	<div id="mapid"></div>
-
+	<div id="container">
+	 <div id="header">
+	 </div>
+	 <div id="content_area">
+		<div id="left_col"></div>
+		<div id="right_col">
+		 <div id="mapid"></div>
+	 	</div>
+	 </div>
+		<div id="footer"></div>
+	</div>
 </body>
 
 	<script type="text/javascript">
@@ -45,6 +41,8 @@
 		svgLayer.addTo(mymap)
 
 		var svg = d3.select("#mapid").select("svg");
+		var listview = d3.select("#left_col").append("ul");
+
 		var g = svg.select("g");
 		g.attr("class", "leaflet-zoom-hide");
 
@@ -53,6 +51,51 @@
 			if(error)
 					console.log(error)
 
+			listview.selectAll("li")
+				.data(nodes).enter()
+				.append("li")
+				.html(function(d) {
+					// console.log(d);
+					// return JSON.stringify(d);
+					var OCANumber = d["OCANumber"];
+					var IncidentFromDate = d["IncidentFromDate"];
+					var IncidentFromTime = d["IncidentFromTime"];
+					var IncidentToDate = d["IncidentToDate"];
+					var IncidentToTime = d["IncidentToTime"];
+					var OffenseCode = d["OffenseCode"];
+					var Offense_Description = d["Offense Description"];
+					var CaseStatus = d["CaseStatus"];
+					var CaseDisposition = d["CaseDisposition"];
+					var LocationCode = d["LocationCode"];
+					var PatrolZone = d["PatrolZone"];
+					var LocationLandmark = d["LocationLandmark"];
+					var LocationStreetNumber = d["LocationStreetNumber"];
+					var LocationDirectional = d["LocationDirectional"];
+					var LocationStreet = d["LocationStreet"];
+					var LocationLatitude = d["LocationLatitude"];
+					var LocationLongitude = d["LocationLongitude"];
+					return "OCANumber: " + OCANumber + "<br />" +
+									"IncidentFromTime: " + IncidentFromTime + "<br />" +
+									"IncidentToDate: " + IncidentToDate + "<br />" +
+									"IncidentToTime: " + IncidentToTime + "<br />" +
+									"OffenseCode: " + OffenseCode + "<br />" +
+									"Offense Description: " + Offense_Description + "<br />" +
+									"CaseStatus: " + CaseStatus + "<br />" +
+									"CaseDisposition: " + CaseDisposition + "<br />" +
+									"LocationCode: " + LocationCode + "<br />" +
+									"PatrolZone: " + PatrolZone + "<br />" +
+									"LocationLandmark: " + LocationLandmark + "<br />" +
+									"LocationStreetNumber: " + LocationStreetNumber + "<br />" +
+									"LocationDirectional: " + LocationDirectional + "<br />" +
+									"LocationStreet: " + LocationStreet + "<br />" +
+									"LocationLatitude: " + LocationLatitude + "<br />" +
+									"LocationLongitude: " + LocationLongitude;
+				})
+				.on("click", function(d) {
+					// console.log(d3.select(this).select("li"));
+					// d3.select(this).select(this).style("fill", "red");
+				})
+				.style("fill", "red");
 			//creating the circle dots from the data in crime_log.csv
 			g.selectAll('circle')
 					.data(nodes)
