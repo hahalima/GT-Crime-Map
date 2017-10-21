@@ -11,11 +11,9 @@
 
 <body>
 	<div id="container">
-	 <div id="header">
-	 </div>
+	 <div id="header"></div>
 	 <div id="content_area">
 		<div id="left_col">
-			<!-- <p>Sort listview by category:</p> -->
 			<select class="selectBar"></select>
 			<p id="totalListviewMapItemsText"></p>
 			<ul class="listview"> </ul>
@@ -30,7 +28,7 @@
 </body>
 
 	<script type="text/javascript">
-		//set coordinates to GT's student center
+		//set coordinates to Georgia Tech's student center
 		var atl = new L.LatLng(33.77438, -84.39879);
 		//create map object with GT's student center at the center of map
 		var mymap = L.map('mapid').setView(atl, 16);
@@ -42,28 +40,35 @@
 				accessToken: 'pk.eyJ1IjoiamFnb2R3aW4iLCJhIjoiY2lnOGQxaDhiMDZzMXZkbHYzZmN4ZzdsYiJ9.Uwh_L37P-qUoeC-MBSDteA'
 		}).addTo(mymap);
 
+		//drawing the building markers
 		var studentCenterMarker = L.marker([33.77438, -84.39879]).bindPopup('Student Center').addTo(mymap);
 		var northAvenueMarker = L.marker([33.76941, -84.39136]).bindPopup('North Avenue Apartments').addTo(mymap);
-		var cloughMarker = L.marker([33.77456, -84.39608]).bindPopup('Clough Commons').addTo(mymap);
+		var cloughMarker = L.marker([33.77456, -84.39608]).bindPopup('Clough Commons/Library').addTo(mymap);
 		var bobbyDoddMarker = L.marker([33.77251, -84.39281]).bindPopup('Bobby Dodd Stadium').addTo(mymap);
-		var crcMarker = L.marker([33.7767, -84.40314]).bindPopup('Campus Recreation Center').addTo(mymap);
+		var crcMarker = L.marker([33.77567, -84.40325]).bindPopup('Campus Recreation Center').addTo(mymap);
 		var gtpdMarker = L.marker([33.77906, -84.40143]).bindPopup('GT Police Department').addTo(mymap);
 		var techSquareMarker = L.marker([33.77698, -84.38924]).bindPopup('Tech Square').addTo(mymap);
 		var biotechQuadMarker = L.marker([33.77897, -84.39653]).bindPopup('Biotech Quad').addTo(mymap);
 		var greekHousesMarker = L.marker([33.77648, -84.39246]).bindPopup('Small portion of Greek houses').addTo(mymap);
 		var howeyPhysicsMarker = L.marker([33.77745, -84.39882]).bindPopup('Howey Physics Building').addTo(mymap);
 		var mccamishPavilionMarker = L.marker([33.7809, -84.39274]).bindPopup('McCamish Pavilion').addTo(mymap);
-		var mccamishPavilionMarker = L.marker([33.77932, -84.40462]).bindPopup('West Village Dining Commons').addTo(mymap);
+		var westVillageMarker = L.marker([33.77932, -84.40462]).bindPopup('West Village Dining Commons').addTo(mymap);
+		var graduateLivingCenterMarker = L.marker([33.78254, -84.39646]).bindPopup('Graduate Living Center').addTo(mymap);
+		var woodruffMarker = L.marker([33.77913, -84.40698]).bindPopup('Woodruff Housing').addTo(mymap);
 
-		var latlngs = [
+		//drawing the GT campus boundary
+		var techBoundaryLatLngs = [
 			[33.76816, -84.39059], //starting point in the bottom right at north avenue apartments
 			[33.76816, -84.39213],
 			[33.7703, -84.39213],
 			[33.77048, -84.39599],
 			[33.77269, -84.39767],
-			[33.77501, -84.40471],
-			[33.77654, -84.40616],
-			[33.782, -84.40784], //top left corner of the map
+			[33.7738, -84.40221],
+			[33.7754, -84.4047],
+			[33.77683, -84.4063],
+			[33.77904, -84.4071],
+			[33.77961, -84.40714],
+			[33.7820, -84.40789], //top left corner of the map
 			[33.78204, -84.39076],
 			[33.7783, -84.3908],
 			[33.77808, -84.38677],
@@ -71,10 +76,11 @@
 			[33.77462, -84.39059],
 			[33.76816, -84.39059]
 		];
-		var polyline = L.polyline(latlngs, {color: 'gold'}).addTo(mymap);
+		var polyline = L.polyline(techBoundaryLatLngs, {color: 'gold'}).addTo(mymap);
 		// zoom the map to the polyline
 		mymap.fitBounds(polyline.getBounds());
 
+		// // popup will show location - used to find markers and boundary locations
 		// var popup = L.popup();
 		//
 		// function onMapClick(e) {
@@ -90,42 +96,32 @@
 		var svgLayer = L.svg();
 		svgLayer.addTo(mymap)
 
-		var svg = d3.select("#mapid").select("svg");
+
+		var svg = d3.select("#mapid").select("svg").on("click", function(d) { console.log("gi"); } );
 		var selectBar = d3.select(".selectBar");
 		var listview = d3.select(".listview");
 
 		var g = svg.select("g");
 		g.attr("class", "leaflet-zoom-hide");
 
-	  var optionsArr = [{'value': "Earliest Cases"}, {'value': "Latest Cases"}, {'value': "Cases: Closed/Cleared"}, {'value': "Cases: Closed/Leads Exhausted"}, {'value': "Cases: Further Investigation"}, {'value': "Cases: Inactive"}];
-	  var options = selectBar.selectAll("option")
-	                 .data(optionsArr)
-	                 .enter()
-	                 .append("option")
-									 .text(function (d) { return d.value; })
-									 .attr("id", function (d) { return d.value; });
-
-	 selectBar.attr("id", "category-selector")
-			.on("change", changeList);
-
 		var nodesData;
 
 		function update(data) {
+
+			data = data.filter(function(d) { return (d.CaseStatus !== "" && d.LocationLatitude !== "" && d.LocationLongitude !== "" && d["Offense Description"] !== "") });
 
 			console.log("in update:");
 			console.log(data);
 
 			var text = d3.select("#totalListviewMapItemsText")
-			.html("Total items in dataset and shown in map: " + nodesData.length +
-			"</br>" + "Total items shown in listview: " + data.length);
+			.html("Total items shown in map and listview: " + data.length);
 
 			//Join new data with old elements
 			var listSelection = listview.selectAll("li")
-				.data(data, function(d) { return d.CaseStatus; } );
+				.data(data, function(d) { return d.OCANumber; } )
 
 			//ENTER new elements present in new data
 			listSelection.enter()
-				.filter(function(d) { return (d.CaseStatus !== "" && d.LocationLatitude !== "" && d.LocationLongitude !== "") })
 				.append("li")
 				.attr("id", function(d) {
 						return d["OCANumber"];
@@ -134,11 +130,11 @@
 					if (d.CaseStatus === "Closed/Cleared") {
 						return "#83E843"; //green
 					} else if (d.CaseStatus === "Closed/Leads Exhausted") {
-						return "#E8D2E8"; //grey
+						return "#E8FFE2"; //light white
 					} else if (d.CaseStatus === "Further Investigation") {
 						return "#FFD365"; //orange
 					} else if (d.CaseStatus === "Inactive") {
-						return "#76B4E8"; //blue
+						return "#9DE8E1"; //blue
 					}
 				})
 				.html(function(d) {
@@ -173,6 +169,32 @@
 
 				//EXIT old elements not present in new data
 				listSelection.exit().remove();
+
+				//creating the circle dots from the data in crime_log.csv
+				var mapNodes = g.selectAll('circle')
+						.data(data);
+
+				mapNodes.enter().append('circle')
+								.style("opacity", 0.2)
+								.style("fill", 'red')
+								.attr("r", 6);
+
+				//UPDATE old elements present in new data
+				mapNodes.transition()
+						.duration(0)
+						.attr("id", function(d) {
+								return d["OCANumber"];
+						})
+
+				//EXIT old elements not present in new data
+				mapNodes.exit().remove();
+
+				//setting the location of the circle dots from the data in crime_log.csv
+				data.forEach(function(d){
+						d.LatLng = [+d.LocationLatitude, +d.LocationLongitude];
+				})
+				mymap.on('zoomend', updateNodes);
+				updateNodes();
 		}
 
 		//load in the data from crime_log.csv
@@ -182,23 +204,28 @@
 
 			nodesData = nodes;
 
-			// update(nodesData);
-			changeList(nodesData);
+			var data = d3.nest()
+			.key(function(d) { return d["Offense Description"]; } )
+			.sortKeys(d3.ascending)
+			.entries(nodesData);
 
-			//creating the circle dots from the data in crime_log.csv
-			g.selectAll('circle')
-					.data(nodes)
-					.enter().append('circle')
-							.style("opacity", 0.3)
-							.style("fill", 'red')
-							.attr("r", 6)
-							.on("click", function(d) { console.log("clicked!"); } );
-			//setting the location of the circle dots from the data in crime_log.csv
-			nodes.forEach(function(d){
-					d.LatLng = [+d.LocationLatitude, +d.LocationLongitude];
-			})
-			mymap.on('zoomend', updateNodes);
-			updateNodes();
+			data = data.filter(function(d) { return (d.key !== ""); });
+			console.log(data);
+
+			var optionsArr = [{'key': "Total Cases"}, {'key': "Cases: Closed/Cleared"}, {'key': "Cases: Closed/Leads Exhausted"}, {'key': "Cases: Further Investigation"}, {'key': "Cases: Inactive"}];
+
+			console.log(optionsArr.concat(data));
+			var options = selectBar.selectAll("option")
+		                 .data(optionsArr.concat(data))
+		                 .enter()
+		                 .append("option")
+										 .text(function (d) { return d.key; })
+										 .attr("id", function (d) { return d.value; });
+
+		 selectBar.attr("id", "category-selector")
+				.on("change", changeList);
+
+			changeList(nodesData);
 		})
 
 		function updateNodes(){
@@ -207,51 +234,28 @@
 		        .attr('cy', function(d){return mymap.latLngToLayerPoint(d.LatLng).y})
 		}
 
-		//TO DO: List view filtering update based on selection of select bar
+		//List view filtering update based on selection of select bar
 		function changeList() {
 			var selectedValue = d3.select('select').property('value');
-			if (selectedValue === "Earliest Cases") {
+			if (selectedValue === "Total Cases") {
 				var newNodes = nodesData.sort(function(a, b) {
 						var dateA = new Date(a.IncidentFromDate), dateB = new Date(b.IncidentFromDate);
 						return dateA - dateB;
 				});
-				console.log(newNodes);
 				update(newNodes);
-			} else if (selectedValue === "Latest Cases") {
-				var newNodes = nodesData.sort(function(a, b) {
-						var dateA = new Date(a.IncidentFromDate), dateB = new Date(b.IncidentFromDate);
-						return dateB - dateA;
-				});
-				console.log(newNodes);
-				update(newNodes);
-			} else if (selectedValue === "Cases: Closed/Cleared") {
+			} else if (selectedValue.includes("Cases: ")) {
+					var caseStatus = selectedValue.substring(7); //remove "Cases: " from the option and only have the case status
+
 					var nested_data = nodesData.filter(function(node) {
-						return node.CaseStatus === "Closed/Cleared";
+						return node.CaseStatus === caseStatus;
 					})
-					console.log(nested_data);
 					update(nested_data);
-					// listview.selectAll("li")
-					// 	.data(newNodes).enter();
-				} else if (selectedValue === "Cases: Closed/Leads Exhausted") {
-					var nested_data = nodesData.filter(function(node) {
-						return node.CaseStatus === "Closed/Leads Exhausted";
-					})
-					console.log(nested_data);
-					update(nested_data);
-				} else if (selectedValue === "Cases: Further Investigation") {
-					var nested_data = nodesData.filter(function(node) {
-						return node.CaseStatus === "Further Investigation";
-					})
-					console.log(nested_data);
-					update(nested_data);
-				} else if (selectedValue === "Cases: Inactive") {
-					var nested_data = nodesData.filter(function(node) {
-						return node.CaseStatus === "Inactive";
-					})
-					console.log(nested_data);
-					update(nested_data);
-				}
+			} else {
+				var nested_data = nodesData.filter(function(node) {
+					return node["Offense Description"] === selectedValue;
+				})
+				update(nested_data);
+			}
 		}
 	</script>
-
 </html>
