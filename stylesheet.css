@@ -1,39 +1,55 @@
+p {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
 #container {
  width:100%;
  /*margin:10px 10px 10px 10px;*/
  background:#fff;
  position:relative;
+ height:500px;
 }
+
 #left_col {
    float:left;
    width:30%;
-   height:700px;
+   height:600px;
    color:#000;
    background:#fff;
    /*position:absolute;*/
-   overflow: scroll;
 }
+
 #right_col {
    float:right;
    width:70%;
-   height:700px;
+   height:620px;
    color:red;
    background:#fff;
    /*position:relative;*/
 }
+
 #mapid {
-   height: 700px;
+   height: 640px;
    width: 100%;
 }
+
 ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  overflow: scroll;
+  height:550px;
 }
+
 li {
   border:1px solid #000;
 }
 
 li:hover {
-  border:5px solid red;
+  border:3px solid red;
+}
+
+svg {
+  z-index: 1;
+  position:relative;
 }

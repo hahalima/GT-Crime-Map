@@ -15,6 +15,10 @@
 	 </div>
 	 <div id="content_area">
 		<div id="left_col">
+			<!-- <p>Sort listview by category:</p> -->
+			<select class="selectBar"></select>
+			<p id="totalListviewMapItemsText"></p>
+			<ul class="listview"> </ul>
 		</div>
 		<div id="right_col">
 		 <div id="mapid"></div>
@@ -27,32 +31,73 @@
 
 	<script type="text/javascript">
 		//set coordinates to GT's student center
-		var atl = new L.LatLng(33.77487566, -84.39795059);
+		var atl = new L.LatLng(33.77438, -84.39879);
 		//create map object with GT's student center at the center of map
 		var mymap = L.map('mapid').setView(atl, 16);
 		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-				maxZoom: 17,
+				maxZoom: 20,
 				minZoom: 15,
 				id: 'mapbox.light',
 				accessToken: 'pk.eyJ1IjoiamFnb2R3aW4iLCJhIjoiY2lnOGQxaDhiMDZzMXZkbHYzZmN4ZzdsYiJ9.Uwh_L37P-qUoeC-MBSDteA'
 		}).addTo(mymap);
+
+		var studentCenterMarker = L.marker([33.77438, -84.39879]).bindPopup('Student Center').addTo(mymap);
+		var northAvenueMarker = L.marker([33.76941, -84.39136]).bindPopup('North Avenue Apartments').addTo(mymap);
+		var cloughMarker = L.marker([33.77456, -84.39608]).bindPopup('Clough Commons').addTo(mymap);
+		var bobbyDoddMarker = L.marker([33.77251, -84.39281]).bindPopup('Bobby Dodd Stadium').addTo(mymap);
+		var crcMarker = L.marker([33.7767, -84.40314]).bindPopup('Campus Recreation Center').addTo(mymap);
+		var gtpdMarker = L.marker([33.77906, -84.40143]).bindPopup('GT Police Department').addTo(mymap);
+		var techSquareMarker = L.marker([33.77698, -84.38924]).bindPopup('Tech Square').addTo(mymap);
+		var biotechQuadMarker = L.marker([33.77897, -84.39653]).bindPopup('Biotech Quad').addTo(mymap);
+		var greekHousesMarker = L.marker([33.77648, -84.39246]).bindPopup('Small portion of Greek houses').addTo(mymap);
+		var howeyPhysicsMarker = L.marker([33.77745, -84.39882]).bindPopup('Howey Physics Building').addTo(mymap);
+		var mccamishPavilionMarker = L.marker([33.7809, -84.39274]).bindPopup('McCamish Pavilion').addTo(mymap);
+		var mccamishPavilionMarker = L.marker([33.77932, -84.40462]).bindPopup('West Village Dining Commons').addTo(mymap);
+
+		var latlngs = [
+			[33.76816, -84.39059], //starting point in the bottom right at north avenue apartments
+			[33.76816, -84.39213],
+			[33.7703, -84.39213],
+			[33.77048, -84.39599],
+			[33.77269, -84.39767],
+			[33.77501, -84.40471],
+			[33.77654, -84.40616],
+			[33.782, -84.40784], //top left corner of the map
+			[33.78204, -84.39076],
+			[33.7783, -84.3908],
+			[33.77808, -84.38677],
+			[33.77458, -84.38677],
+			[33.77462, -84.39059],
+			[33.76816, -84.39059]
+		];
+		var polyline = L.polyline(latlngs, {color: 'gold'}).addTo(mymap);
+		// zoom the map to the polyline
+		mymap.fitBounds(polyline.getBounds());
+
+		// var popup = L.popup();
+		//
+		// function onMapClick(e) {
+		//     popup
+		//         .setLatLng(e.latlng)
+		//         .setContent("You clicked the map at " + e.latlng.toString())
+		//         .openOn(mymap);
+		// }
+		//
+		// mymap.on('click', onMapClick);
 
 		//svg layer on top of the map object to write data points
 		var svgLayer = L.svg();
 		svgLayer.addTo(mymap)
 
 		var svg = d3.select("#mapid").select("svg");
-		var selectBar = d3.select("#left_col").append("select");
-		var listview = d3.select("#left_col").append("ul");
+		var selectBar = d3.select(".selectBar");
+		var listview = d3.select(".listview");
 
 		var g = svg.select("g");
 		g.attr("class", "leaflet-zoom-hide");
 
-		selectBar.attr("id", "category-selector")
-			.on("change", changeList);
-
-	  var optionsArr = [ {'value': "Earliest Cases"}, {'value': "Latest Cases"}, {'value': "Cases: Closed/Cleared"}, {'value': "Cases: Closed/Leads Exhausted"}, {'value': "Cases: Further Investigation"}, {'value': "Cases: Inactive"}];
+	  var optionsArr = [{'value': "Earliest Cases"}, {'value': "Latest Cases"}, {'value': "Cases: Closed/Cleared"}, {'value': "Cases: Closed/Leads Exhausted"}, {'value': "Cases: Further Investigation"}, {'value': "Cases: Inactive"}];
 	  var options = selectBar.selectAll("option")
 	                 .data(optionsArr)
 	                 .enter()
@@ -60,15 +105,26 @@
 									 .text(function (d) { return d.value; })
 									 .attr("id", function (d) { return d.value; });
 
-		var nodesData;
-		//load in the data from crime_log.csv
-		d3.csv('/crime_log.csv', function(error, nodes) {
-			if(error)
-					console.log(error)
+	 selectBar.attr("id", "category-selector")
+			.on("change", changeList);
 
-			nodesData = nodes;
-			listview.selectAll("li")
-				.data(nodes).enter()
+		var nodesData;
+
+		function update(data) {
+
+			console.log("in update:");
+			console.log(data);
+
+			var text = d3.select("#totalListviewMapItemsText")
+			.html("Total items in dataset and shown in map: " + nodesData.length +
+			"</br>" + "Total items shown in listview: " + data.length);
+
+			//Join new data with old elements
+			var listSelection = listview.selectAll("li")
+				.data(data, function(d) { return d.CaseStatus; } );
+
+			//ENTER new elements present in new data
+			listSelection.enter()
 				.filter(function(d) { return (d.CaseStatus !== "" && d.LocationLatitude !== "" && d.LocationLongitude !== "") })
 				.append("li")
 				.attr("id", function(d) {
@@ -95,8 +151,8 @@
 					var IncidentToTime = d["IncidentToTime"];
 					var LocationLandmark = d["LocationLandmark"];
 					var LocationStreet = d["LocationStreet"];
-					var LocationLatitude = d["LocationLatitude"];
-					var LocationLongitude = d["LocationLongitude"];
+					// var LocationLatitude = d["LocationLatitude"];
+					// var LocationLongitude = d["LocationLongitude"];
 					return  "CaseStatus: " + CaseStatus + "<br />" +
 									"Offense Description: " + Offense_Description + "<br />" +
 									"CaseDisposition: " + CaseDisposition + "<br />" +
@@ -105,10 +161,29 @@
 									"IncidentFromDate: " + IncidentFromDate + "<br />" +
 									"IncidentToDate: " + IncidentToDate + "<br />" +
 									"LocationLandmark: " + LocationLandmark + "<br />" +
-									"LocationStreet: " + LocationStreet + "<br />" +
-									"LocationLatitude: " + LocationLatitude + "<br />" +
-									"LocationLongitude: " + LocationLongitude;
+									"LocationStreet: " + LocationStreet + "<br />";
 				});
+
+				//UPDATE old elements present in new data
+				listSelection.transition()
+		        .duration(0)
+						.attr("id", function(d) {
+								return d["OCANumber"];
+						})
+
+				//EXIT old elements not present in new data
+				listSelection.exit().remove();
+		}
+
+		//load in the data from crime_log.csv
+		d3.csv('/crime_log.csv', function(error, nodes) {
+			if(error)
+					console.log(error)
+
+			nodesData = nodes;
+
+			// update(nodesData);
+			changeList(nodesData);
 
 			//creating the circle dots from the data in crime_log.csv
 			g.selectAll('circle')
@@ -116,16 +191,13 @@
 					.enter().append('circle')
 							.style("opacity", 0.3)
 							.style("fill", 'red')
-							.attr('r', 6);
-
-
+							.attr("r", 6)
+							.on("click", function(d) { console.log("clicked!"); } );
 			//setting the location of the circle dots from the data in crime_log.csv
 			nodes.forEach(function(d){
 					d.LatLng = [+d.LocationLatitude, +d.LocationLongitude];
 			})
-
 			mymap.on('zoomend', updateNodes);
-
 			updateNodes();
 		})
 
@@ -134,6 +206,7 @@
 		        .attr('cx', function(d){return mymap.latLngToLayerPoint(d.LatLng).x})
 		        .attr('cy', function(d){return mymap.latLngToLayerPoint(d.LatLng).y})
 		}
+
 		//TO DO: List view filtering update based on selection of select bar
 		function changeList() {
 			var selectedValue = d3.select('select').property('value');
@@ -143,35 +216,42 @@
 						return dateA - dateB;
 				});
 				console.log(newNodes);
-				// listview.selectAll("li")
-				// 	.data(newNodes).enter();
+				update(newNodes);
 			} else if (selectedValue === "Latest Cases") {
 				var newNodes = nodesData.sort(function(a, b) {
 						var dateA = new Date(a.IncidentFromDate), dateB = new Date(b.IncidentFromDate);
 						return dateB - dateA;
 				});
 				console.log(newNodes);
-				// listview.selectAll("li")
-				// 	.data(newNodes).enter();
+				update(newNodes);
 			} else if (selectedValue === "Cases: Closed/Cleared") {
-					var nested_data = d3.nest()
-					.key(function(d) { return d.CaseStatus })
-					// .key(function(d) { return d.CaseStatus === "Cases: Closed/Cleared"; })
-					.entries(nodesData);
+					var nested_data = nodesData.filter(function(node) {
+						return node.CaseStatus === "Closed/Cleared";
+					})
 					console.log(nested_data);
+					update(nested_data);
 					// listview.selectAll("li")
 					// 	.data(newNodes).enter();
 				} else if (selectedValue === "Cases: Closed/Leads Exhausted") {
-					var nested_data = d3.nest()
-					.key(function(d) { return d.CaseStatus === "Cases: Closed/Leads Exhausted"; }).sortKeys(d3.ascending)
-					// .key(function(d) { return d.CaseStatus === "Cases: Closed/Leads Exhausted"; })
-					.entries(nodesData);
+					var nested_data = nodesData.filter(function(node) {
+						return node.CaseStatus === "Closed/Leads Exhausted";
+					})
 					console.log(nested_data);
-					// listview.selectAll("li")
-					// 	.data(newNodes).enter();
-					}
+					update(nested_data);
+				} else if (selectedValue === "Cases: Further Investigation") {
+					var nested_data = nodesData.filter(function(node) {
+						return node.CaseStatus === "Further Investigation";
+					})
+					console.log(nested_data);
+					update(nested_data);
+				} else if (selectedValue === "Cases: Inactive") {
+					var nested_data = nodesData.filter(function(node) {
+						return node.CaseStatus === "Inactive";
+					})
+					console.log(nested_data);
+					update(nested_data);
+				}
 		}
-
 	</script>
 
 </html>
