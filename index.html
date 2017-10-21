@@ -1,261 +1,293 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>Georgia Tech 2016 Crime Map</title>
-	<!-- import D3 and Leaflet -->
+	<!-- import D3 and Leaflet and our stylesheet-->
 	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js">
+	</script>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
 	<link rel="stylesheet" type="text/css" href="stylesheet.css" />
-	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"> </script>
 </head>
 
 <body>
 	<div id="container">
-	 <div id="header"></div>
-	 <div id="content_area">
-		<div id="left_col">
-			<select class="selectBar"></select>
-			<p id="totalListviewMapItemsText"></p>
-			<ul class="listview"> </ul>
+		<div id="header"></div>
+		<div id="content_area">
+			<div id="left_col">
+				<select class="selectBar"></select>
+				<p id="totalListviewMapItemsText"></p>
+				<ul class="listview"> </ul>
+			</div>
+			<div id="right_col">
+				<div id="mapid"></div>
+			</div>
 		</div>
-		<div id="right_col">
-		 <div id="mapid"></div>
-	 	</div>
-	 </div>
 		<div id="footer">
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+//set coordinates to Georgia Tech's student center
+var atl = new L.LatLng(33.77438, -84.39879);
+//create map object with GT's student center at the center of map
+var mymap = L.map('mapid').setView(atl, 16);
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+  attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+  maxZoom: 20,
+  minZoom: 15,
+  id: 'mapbox.light',
+  accessToken: 'pk.eyJ1IjoiamFnb2R3aW4iLCJhIjoiY2lnOGQxaDhiMDZzMXZkbHYzZmN4ZzdsYiJ9.Uwh_L37P-qUoeC-MBSDteA'
+}).addTo(mymap);
 
-	<script type="text/javascript">
-		//set coordinates to Georgia Tech's student center
-		var atl = new L.LatLng(33.77438, -84.39879);
-		//create map object with GT's student center at the center of map
-		var mymap = L.map('mapid').setView(atl, 16);
-		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-				maxZoom: 20,
-				minZoom: 15,
-				id: 'mapbox.light',
-				accessToken: 'pk.eyJ1IjoiamFnb2R3aW4iLCJhIjoiY2lnOGQxaDhiMDZzMXZkbHYzZmN4ZzdsYiJ9.Uwh_L37P-qUoeC-MBSDteA'
-		}).addTo(mymap);
+//drawing the building markers
+var studentCenterMarker = L.marker([33.77438, -84.39879]).bindPopup('Student Center').addTo(mymap);
+var northAvenueMarker = L.marker([33.76941, -84.39136]).bindPopup('North Avenue Apartments').addTo(mymap);
+var cloughMarker = L.marker([33.77456, -84.39608]).bindPopup('Clough Commons/Library').addTo(mymap);
+var bobbyDoddMarker = L.marker([33.77251, -84.39281]).bindPopup('Bobby Dodd Stadium').addTo(mymap);
+var crcMarker = L.marker([33.77567, -84.40325]).bindPopup('Campus Recreation Center').addTo(mymap);
+var gtpdMarker = L.marker([33.77906, -84.40143]).bindPopup('GT Police Department').addTo(mymap);
+var techSquareMarker = L.marker([33.77698, -84.38924]).bindPopup('Tech Square').addTo(mymap);
+var biotechQuadMarker = L.marker([33.77897, -84.39653]).bindPopup('Biotech Quad').addTo(mymap);
+var greekHousesMarker = L.marker([33.77648, -84.39246]).bindPopup('Small portion of Greek houses').addTo(mymap);
+var howeyPhysicsMarker = L.marker([33.77745, -84.39882]).bindPopup('Howey Physics Building').addTo(mymap);
+var mccamishPavilionMarker = L.marker([33.7809, -84.39274]).bindPopup('McCamish Pavilion').addTo(mymap);
+var westVillageMarker = L.marker([33.77932, -84.40462]).bindPopup('West Village Dining Commons').addTo(mymap);
+var graduateLivingCenterMarker = L.marker([33.78254, -84.39646]).bindPopup('Graduate Living Center').addTo(mymap);
+var woodruffMarker = L.marker([33.77913, -84.40698]).bindPopup('Woodruff Housing').addTo(mymap);
 
-		//drawing the building markers
-		var studentCenterMarker = L.marker([33.77438, -84.39879]).bindPopup('Student Center').addTo(mymap);
-		var northAvenueMarker = L.marker([33.76941, -84.39136]).bindPopup('North Avenue Apartments').addTo(mymap);
-		var cloughMarker = L.marker([33.77456, -84.39608]).bindPopup('Clough Commons/Library').addTo(mymap);
-		var bobbyDoddMarker = L.marker([33.77251, -84.39281]).bindPopup('Bobby Dodd Stadium').addTo(mymap);
-		var crcMarker = L.marker([33.77567, -84.40325]).bindPopup('Campus Recreation Center').addTo(mymap);
-		var gtpdMarker = L.marker([33.77906, -84.40143]).bindPopup('GT Police Department').addTo(mymap);
-		var techSquareMarker = L.marker([33.77698, -84.38924]).bindPopup('Tech Square').addTo(mymap);
-		var biotechQuadMarker = L.marker([33.77897, -84.39653]).bindPopup('Biotech Quad').addTo(mymap);
-		var greekHousesMarker = L.marker([33.77648, -84.39246]).bindPopup('Small portion of Greek houses').addTo(mymap);
-		var howeyPhysicsMarker = L.marker([33.77745, -84.39882]).bindPopup('Howey Physics Building').addTo(mymap);
-		var mccamishPavilionMarker = L.marker([33.7809, -84.39274]).bindPopup('McCamish Pavilion').addTo(mymap);
-		var westVillageMarker = L.marker([33.77932, -84.40462]).bindPopup('West Village Dining Commons').addTo(mymap);
-		var graduateLivingCenterMarker = L.marker([33.78254, -84.39646]).bindPopup('Graduate Living Center').addTo(mymap);
-		var woodruffMarker = L.marker([33.77913, -84.40698]).bindPopup('Woodruff Housing').addTo(mymap);
+//drawing the GT campus boundary
+var techBoundaryLatLngs = [
+  [33.76816, -84.39059], //starting point in the bottom right at north avenue apartments
+  [33.76816, -84.39213],
+  [33.7703, -84.39213],
+  [33.77048, -84.39599],
+  [33.77269, -84.39767],
+  [33.7738, -84.40221],
+  [33.7754, -84.4047],
+  [33.77683, -84.4063],
+  [33.77904, -84.4071],
+  [33.77961, -84.40714],
+  [33.7820, -84.40789], //top left corner of the map
+  [33.78204, -84.39076],
+  [33.7783, -84.3908],
+  [33.77808, -84.38677],
+  [33.77458, -84.38677],
+  [33.77462, -84.39059],
+  [33.76816, -84.39059]
+];
+var polyline = L.polyline(techBoundaryLatLngs, {
+  color: 'gold'
+}).addTo(mymap);
+// zoom the map to the polyline
+mymap.fitBounds(polyline.getBounds());
 
-		//drawing the GT campus boundary
-		var techBoundaryLatLngs = [
-			[33.76816, -84.39059], //starting point in the bottom right at north avenue apartments
-			[33.76816, -84.39213],
-			[33.7703, -84.39213],
-			[33.77048, -84.39599],
-			[33.77269, -84.39767],
-			[33.7738, -84.40221],
-			[33.7754, -84.4047],
-			[33.77683, -84.4063],
-			[33.77904, -84.4071],
-			[33.77961, -84.40714],
-			[33.7820, -84.40789], //top left corner of the map
-			[33.78204, -84.39076],
-			[33.7783, -84.3908],
-			[33.77808, -84.38677],
-			[33.77458, -84.38677],
-			[33.77462, -84.39059],
-			[33.76816, -84.39059]
-		];
-		var polyline = L.polyline(techBoundaryLatLngs, {color: 'gold'}).addTo(mymap);
-		// zoom the map to the polyline
-		mymap.fitBounds(polyline.getBounds());
+// // popup will show location - used to find markers and boundary locations
+// var popup = L.popup();
+//
+// function onMapClick(e) {
+//     popup
+//         .setLatLng(e.latlng)
+//         .setContent("You clicked the map at " + e.latlng.toString())
+//         .openOn(mymap);
+// }
+//
+// mymap.on('click', onMapClick);
 
-		// // popup will show location - used to find markers and boundary locations
-		// var popup = L.popup();
-		//
-		// function onMapClick(e) {
-		//     popup
-		//         .setLatLng(e.latlng)
-		//         .setContent("You clicked the map at " + e.latlng.toString())
-		//         .openOn(mymap);
-		// }
-		//
-		// mymap.on('click', onMapClick);
+//svg layer on top of the map object to write data points
+var svgLayer = L.svg();
+svgLayer.addTo(mymap)
 
-		//svg layer on top of the map object to write data points
-		var svgLayer = L.svg();
-		svgLayer.addTo(mymap)
+var svg = d3.select("#mapid").select("svg"); //layer to draw circles on map
+var selectBar = d3.select(".selectBar");
+var listview = d3.select(".listview");
 
+var g = svg.select("g");
+g.attr("class", "leaflet-zoom-hide");
 
-		var svg = d3.select("#mapid").select("svg").on("click", function(d) { console.log("gi"); } );
-		var selectBar = d3.select(".selectBar");
-		var listview = d3.select(".listview");
+var dataset;
 
-		var g = svg.select("g");
-		g.attr("class", "leaflet-zoom-hide");
+//load in the data from crime_log.csv
+d3.csv('/crime_log.csv', function(error, crime_log_data) {
+  if (error)
+    console.log(error)
 
-		var nodesData;
+  dataset = crime_log_data;
 
-		function update(data) {
+  var offenseDecriptionOrderedData = d3.nest()
+    .key(function(d) {
+      return d["Offense Description"];
+    })
+    .sortKeys(d3.ascending)
+    .entries(dataset)
+    .filter(function(d) {
+      return (d.CaseStatus !== "" &&
+        d.LocationLatitude !== "" && d.LocationLongitude !== "" &&
+        d["Offense Description"] !== "" &&
+        d.key !== "");
+    }); //remove any data with no case status, location, offense description, and empty keys
 
-			data = data.filter(function(d) { return (d.CaseStatus !== "" && d.LocationLatitude !== "" && d.LocationLongitude !== "" && d["Offense Description"] !== "") });
+  var defaultOptions = [{
+      'key': "Total Cases"
+    },
+    {
+      'key': "Cases: Closed/Cleared"
+    },
+    {
+      'key': "Cases: Closed/Leads Exhausted"
+    },
+    {
+      'key': "Cases: Further Investigation"
+    },
+    {
+      'key': "Cases: Inactive"
+    }
+  ];
 
-			console.log("in update:");
-			console.log(data);
+  var options = selectBar.selectAll("option")
+    .data(defaultOptions.concat(offenseDecriptionOrderedData))
+    .enter()
+    .append("option")
+    .text(function(d) {
+      return d.key;
+    })
+    .attr("id", function(d) {
+      return d.value;
+    });
 
-			var text = d3.select("#totalListviewMapItemsText")
-			.html("Total items shown in map and listview: " + data.length);
+  //setting up the select bar
+  selectBar.attr("id", "category-selector")
+    .on("change", updateListview);
 
-			//Join new data with old elements
-			var listSelection = listview.selectAll("li")
-				.data(data, function(d) { return d.OCANumber; } )
+  updateListview();
+})
 
-			//ENTER new elements present in new data
-			listSelection.enter()
-				.append("li")
-				.attr("id", function(d) {
-						return d["OCANumber"];
-				})
-				.style("background", function(d) {
-					if (d.CaseStatus === "Closed/Cleared") {
-						return "#83E843"; //green
-					} else if (d.CaseStatus === "Closed/Leads Exhausted") {
-						return "#E8FFE2"; //light white
-					} else if (d.CaseStatus === "Further Investigation") {
-						return "#FFD365"; //orange
-					} else if (d.CaseStatus === "Inactive") {
-						return "#9DE8E1"; //blue
-					}
-				})
-				.html(function(d) {
-					var CaseStatus = d["CaseStatus"];
-					var CaseDisposition = d["CaseDisposition"];
-					var Offense_Description = d["Offense Description"];
-					var IncidentFromDate = d["IncidentFromDate"];
-					var IncidentToDate = d["IncidentToDate"];
-					var IncidentFromTime = d["IncidentFromTime"];
-					var IncidentToTime = d["IncidentToTime"];
-					var LocationLandmark = d["LocationLandmark"];
-					var LocationStreet = d["LocationStreet"];
-					// var LocationLatitude = d["LocationLatitude"];
-					// var LocationLongitude = d["LocationLongitude"];
-					return  "CaseStatus: " + CaseStatus + "<br />" +
-									"Offense Description: " + Offense_Description + "<br />" +
-									"CaseDisposition: " + CaseDisposition + "<br />" +
-									"IncidentFromTime: " + IncidentFromTime + "<br />" +
-									"IncidentToTime: " + IncidentToTime + "<br />" +
-									"IncidentFromDate: " + IncidentFromDate + "<br />" +
-									"IncidentToDate: " + IncidentToDate + "<br />" +
-									"LocationLandmark: " + LocationLandmark + "<br />" +
-									"LocationStreet: " + LocationStreet + "<br />";
-				});
+function updateListview() {
 
-				//UPDATE old elements present in new data
-				listSelection.transition()
-		        .duration(0)
-						.attr("id", function(d) {
-								return d["OCANumber"];
-						})
+  var selectedValue = d3.select('select').property('value');
+  var newData = [];
+  if (selectedValue === "Total Cases") {
+    newData = dataset.sort(function(a, b) {
+      var dateA = new Date(a.IncidentFromDate),
+        dateB = new Date(b.IncidentFromDate);
+      return dateA - dateB;
+    });
+  } else if (selectedValue.includes("Cases: ")) {
+    var caseStatus = selectedValue.substring(7); //remove "Cases: " from the option and only have the case status
+    newData = dataset.filter(function(node) {
+      return node.CaseStatus === caseStatus;
+    })
+  } else {
+    newData = dataset.filter(function(node) {
+      return node["Offense Description"] === selectedValue;
+    })
+  }
 
-				//EXIT old elements not present in new data
-				listSelection.exit().remove();
+  // console.log("in updateListview:");
+  // console.log(newData);
 
-				//creating the circle dots from the data in crime_log.csv
-				var mapNodes = g.selectAll('circle')
-						.data(data);
+  var text = d3.select("#totalListviewMapItemsText")
+    .html("Total items shown in map and listview: " + newData.length);
 
-				mapNodes.enter().append('circle')
-								.style("opacity", 0.2)
-								.style("fill", 'red')
-								.attr("r", 6);
+  //Join new data with old elements
+  var listSelection = listview.selectAll("li")
+    .data(newData, function(d) {
+      return d.OCANumber;
+    })
 
-				//UPDATE old elements present in new data
-				mapNodes.transition()
-						.duration(0)
-						.attr("id", function(d) {
-								return d["OCANumber"];
-						})
+  //ENTER new elements present in new data
+  listSelection.enter()
+    .append("li")
+    .attr("id", function(d) {
+      return d["OCANumber"];
+    })
+    .style("background", function(d) {
+      if (d.CaseStatus === "Closed/Cleared") {
+        return "#83E843"; //green
+      } else if (d.CaseStatus === "Closed/Leads Exhausted") {
+        return "#E8FFE2"; //light white
+      } else if (d.CaseStatus === "Further Investigation") {
+        return "#FFD365"; //orange
+      } else if (d.CaseStatus === "Inactive") {
+        return "#9DE8E1"; //blue
+      }
+    })
+    .html(function(d) {
+      var CaseStatus = d["CaseStatus"];
+      var CaseDisposition = d["CaseDisposition"];
+      var Offense_Description = d["Offense Description"];
+      var IncidentFromDate = d["IncidentFromDate"];
+      var IncidentToDate = d["IncidentToDate"];
+      var IncidentFromTime = d["IncidentFromTime"];
+      var IncidentToTime = d["IncidentToTime"];
+      var LocationLandmark = d["LocationLandmark"];
+      var LocationStreet = d["LocationStreet"];
+      return "CaseStatus: " + CaseStatus + "<br />" +
+        "Offense Description: " + Offense_Description + "<br />" +
+        "CaseDisposition: " + CaseDisposition + "<br />" +
+        "IncidentFromTime: " + IncidentFromTime + "<br />" +
+        "IncidentToTime: " + IncidentToTime + "<br />" +
+        "IncidentFromDate: " + IncidentFromDate + "<br />" +
+        "IncidentToDate: " + IncidentToDate + "<br />" +
+        "LocationLandmark: " + LocationLandmark + "<br />" +
+        "LocationStreet: " + LocationStreet + "<br />";
+    });
 
-				//EXIT old elements not present in new data
-				mapNodes.exit().remove();
+  //UPDATE old elements present in new data
+  listSelection.transition()
+    .duration(0)
+    .attr("id", function(d) {
+      return d["OCANumber"];
+    })
 
-				//setting the location of the circle dots from the data in crime_log.csv
-				data.forEach(function(d){
-						d.LatLng = [+d.LocationLatitude, +d.LocationLongitude];
-				})
-				mymap.on('zoomend', updateNodes);
-				updateNodes();
-		}
+  //EXIT old elements not present in new data
+  listSelection.exit().remove();
 
-		//load in the data from crime_log.csv
-		d3.csv('/crime_log.csv', function(error, nodes) {
-			if(error)
-					console.log(error)
+  //update nodes on map as well
+  updateNodes(newData);
+}
 
-			nodesData = nodes;
+function updateNodes(data) {
+  var mapNodes = g.selectAll('circle')
+    .data(data);
 
-			var data = d3.nest()
-			.key(function(d) { return d["Offense Description"]; } )
-			.sortKeys(d3.ascending)
-			.entries(nodesData);
+  //creating the circle dots from the data in crime_log.csv
+  mapNodes.enter().append('circle')
+    .style("opacity", 0.2)
+    .style("fill", 'red')
+    .attr("r", 6);
 
-			data = data.filter(function(d) { return (d.key !== ""); });
-			console.log(data);
+  //UPDATE old elements present in new data
+  mapNodes.transition()
+    .duration(0)
+    .attr("id", function(d) {
+      return d["OCANumber"];
+    })
 
-			var optionsArr = [{'key': "Total Cases"}, {'key': "Cases: Closed/Cleared"}, {'key': "Cases: Closed/Leads Exhausted"}, {'key': "Cases: Further Investigation"}, {'key': "Cases: Inactive"}];
+  //EXIT old elements not present in new data
+  mapNodes.exit().remove();
 
-			console.log(optionsArr.concat(data));
-			var options = selectBar.selectAll("option")
-		                 .data(optionsArr.concat(data))
-		                 .enter()
-		                 .append("option")
-										 .text(function (d) { return d.key; })
-										 .attr("id", function (d) { return d.value; });
+  //setting the location of the circle dots from the inputted data
+  data.forEach(function(d) {
+    d.LatLng = [+d.LocationLatitude, +d.LocationLongitude];
+  })
 
-		 selectBar.attr("id", "category-selector")
-				.on("change", changeList);
+  //add event listener to map, now circle nodes update when map updates
+  mymap.on('zoomend', updateNodesLocations);
 
-			changeList(nodesData);
-		})
+  updateNodesLocations();
+}
 
-		function updateNodes(){
-		    g.selectAll('circle')
-		        .attr('cx', function(d){return mymap.latLngToLayerPoint(d.LatLng).x})
-		        .attr('cy', function(d){return mymap.latLngToLayerPoint(d.LatLng).y})
-		}
+function updateNodesLocations() {
+  g.selectAll('circle')
+    .attr('cx', function(d) {
+      return mymap.latLngToLayerPoint(d.LatLng).x
+    })
+    .attr('cy', function(d) {
+      return mymap.latLngToLayerPoint(d.LatLng).y
+    })
+}
+</script>
 
-		//List view filtering update based on selection of select bar
-		function changeList() {
-			var selectedValue = d3.select('select').property('value');
-			if (selectedValue === "Total Cases") {
-				var newNodes = nodesData.sort(function(a, b) {
-						var dateA = new Date(a.IncidentFromDate), dateB = new Date(b.IncidentFromDate);
-						return dateA - dateB;
-				});
-				update(newNodes);
-			} else if (selectedValue.includes("Cases: ")) {
-					var caseStatus = selectedValue.substring(7); //remove "Cases: " from the option and only have the case status
-
-					var nested_data = nodesData.filter(function(node) {
-						return node.CaseStatus === caseStatus;
-					})
-					update(nested_data);
-			} else {
-				var nested_data = nodesData.filter(function(node) {
-					return node["Offense Description"] === selectedValue;
-				})
-				update(nested_data);
-			}
-		}
-	</script>
 </html>
