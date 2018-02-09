@@ -77,11 +77,18 @@
 
 	//load in the data from crime_log.csv
 	//STEP 5
-	d3.csv('https://s3.us-east-2.amazonaws.com/gt-dataviz-d3-workshop/crimeLog.csv', function(error, crime_log_data) {
+	d3.csv('https://s3.us-east-2.amazonaws.com/gt-dataviz-d3-workshop/gt_crime_log_2017.csv', function(error, crime_log_data) {
 		if (error)
 			console.log(error)
 	  	data = crime_log_data;
 
+	  	data = data.filter(function(d){
+	  		if (isNaN(d['LocationLatitude'])) {
+	  			console.log(d['LocationLatitude'])
+	  		} else {
+	  			return d
+	  		}
+	  	});
 	  	var mapNodes = g.selectAll('circle')
 	    	.data(data);
 	  	
@@ -107,6 +114,9 @@
 	    	.attr('cy', function(d) {
 	      		return mymap.latLngToLayerPoint(d.LatLng).y
 	    	})
+	    	.on("click", function(d) {
+		    	console.log(d)  
+		    })
 	}
 
 </script>
