@@ -7,7 +7,7 @@
 	<script src="https://d3js.org/d3.v4.min.js"></script>
 	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-	<link rel="stylesheet" type="text/css" href="stylesheet.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body>
   	<div id='container'>
@@ -15,6 +15,7 @@
   	</div>
 </body>
 <script type="text/javascript">
+	//STEP ONE
 	var atl = new L.LatLng(33.77438, -84.39879);
 	var mymap = L.map('mapid').setView(atl, 16);
 
@@ -25,9 +26,23 @@
 	  id: 'mapbox.light',
 	  accessToken: 'pk.eyJ1IjoiamFnb2R3aW4iLCJhIjoiY2lnOGQxaDhiMDZzMXZkbHYzZmN4ZzdsYiJ9.Uwh_L37P-qUoeC-MBSDteA'
 	}).addTo(mymap);
-
+	//STEP 2
 	var studentCenterMarker = L.marker([33.77438, -84.39879]).bindPopup('Student Center').addTo(mymap);
-
+	// var northAvenueMarker = L.marker([33.76941, -84.39136]).bindPopup('North Avenue Apartments').addTo(mymap);
+	// var cloughMarker = L.marker([33.77456, -84.39608]).bindPopup('Clough Commons/Library').addTo(mymap);
+	// var bobbyDoddMarker = L.marker([33.77251, -84.39281]).bindPopup('Bobby Dodd Stadium').addTo(mymap);
+	// var crcMarker = L.marker([33.77567, -84.40325]).bindPopup('Campus Recreation Center').addTo(mymap);
+	// var gtpdMarker = L.marker([33.77906, -84.40143]).bindPopup('GT Police Department').addTo(mymap);
+	// var techSquareMarker = L.marker([33.77698, -84.38924]).bindPopup('Tech Square').addTo(mymap);
+	// var biotechQuadMarker = L.marker([33.77897, -84.39653]).bindPopup('Biotech Quad').addTo(mymap);
+	// var greekHousesMarker = L.marker([33.77648, -84.39246]).bindPopup('Small portion of Greek houses').addTo(mymap);
+	// var howeyPhysicsMarker = L.marker([33.77745, -84.39882]).bindPopup('Howey Physics Building').addTo(mymap);
+	// var mccamishPavilionMarker = L.marker([33.7809, -84.39274]).bindPopup('McCamish Pavilion').addTo(mymap);
+	// var westVillageMarker = L.marker([33.77932, -84.40462]).bindPopup('West Village Dining Commons').addTo(mymap);
+	// var graduateLivingCenterMarker = L.marker([33.78254, -84.39646]).bindPopup('Graduate Living Center').addTo(mymap);
+	// var woodruffMarker = L.marker([33.77913, -84.40698]).bindPopup('Woodruff Housing').addTo(mymap);
+	
+	//STEP 3
 	var techBoundaryLatLngs = [
 	  [33.76816, -84.39059], //starting point in the bottom right at north avenue apartments
 	  [33.76816, -84.39213],
@@ -53,6 +68,7 @@
 	// zoom the map to the polyline
 	mymap.fitBounds(polyline.getBounds());
 
+	//STEP 4
 	var svgLayer = L.svg();
 	svgLayer.addTo(mymap)
 	var svg = d3.select("#mapid").select("svg");
@@ -60,11 +76,11 @@
 	g.attr("class", "leaflet-zoom-hide");
 
 	//load in the data from crime_log.csv
+	//STEP 5
 	d3.csv('https://s3.us-east-2.amazonaws.com/gt-dataviz-d3-workshop/crimeLog.csv', function(error, crime_log_data) {
 		if (error)
 			console.log(error)
-		
-	  	dataset = crime_log_data;
+	  	data = crime_log_data;
 
 	  	var mapNodes = g.selectAll('circle')
 	    	.data(data);
@@ -74,14 +90,6 @@
 		    .style("fill", 'red')
 		    .attr("r", 6);
 		  
-		mapNodes.transition()
-		    .duration(0)
-		    .attr("id", function(d) {
-		      return d["OCANumber"];
-		    })
-		  
-		mapNodes.exit().remove();
-		  
 		data.forEach(function(d) {
 		    d.LatLng = [+d.LocationLatitude, +d.LocationLongitude];
 		})
@@ -90,7 +98,7 @@
 		updateNodesLocations();
 	})
 
-
+	//STEP 6
 	function updateNodesLocations() {
 		g.selectAll('circle')
 	    	.attr('cx', function(d) {
